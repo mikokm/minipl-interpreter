@@ -14,3 +14,6 @@ Scanner.o: src/Scanner.cpp src/Scanner.h
 
 clean:
 	rm $(OBJS) interpreter
+
+format:
+	clang-format -i -style=google src/*.cpp src/*.h

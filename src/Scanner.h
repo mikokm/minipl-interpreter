@@ -14,7 +14,7 @@ enum class TokenType {
   TypeDecl,
 };
 
-const char* TokenTypeToString(TokenType type);
+const char* token_type_to_string(TokenType type);
 
 struct Token {
   TokenType type_;
