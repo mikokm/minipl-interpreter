@@ -1,10 +1,10 @@
-#include "Scanner.h"
-
 #include <iostream>
 #include <string>
 
+#include "Scanner.h"
+
 void print_usage() {
-  std::cout  << "Usage: interpreter <filename>" << std::endl;
+  std::cout << "Usage: interpreter <filename>" << std::endl;
 }
 
 int main(int argc, char** argv) {
@@ -14,6 +14,9 @@ int main(int argc, char** argv) {
   }
 
   Scanner scanner(argv[1]);
+  for (Token t : scanner.get_tokens()) {
+    t.print();
+  }
 
   return 0;
 }

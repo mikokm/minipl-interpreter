@@ -1,4 +1,4 @@
-CPPFLAGS=-Wall -Wextra -std=c++17
+CPPFLAGS=-Wall -Wextra -std=c++17 -g
 OBJS=Main.o Scanner.o
 
 all: interpreter

@@ -1,0 +1,48 @@
+[
+  {
+    "arguments": [
+      "/usr/lib64/ccache/g++",
+      "-Wall",
+      "-Wextra",
+      "-std=c++17",
+      "-c",
+      "-o",
+      "Main.o",
+      "src/Main.cpp"
+    ],
+    "directory": "/home/miko/Code/minipl-interpreter",
+    "file": "/home/miko/Code/minipl-interpreter/src/Main.cpp",
+    "output": "/home/miko/Code/minipl-interpreter/Main.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/g++",
+      "-Wall",
+      "-Wextra",
+      "-std=c++17",
+      "-c",
+      "-fdiagnostics-color",
+      "-o",
+      "Main.o",
+      "src/Main.cpp"
+    ],
+    "directory": "/home/miko/Code/minipl-interpreter",
+    "file": "/home/miko/Code/minipl-interpreter/src/Main.cpp",
+    "output": "/home/miko/Code/minipl-interpreter/Main.o"
+  },
+  {
+    "arguments": [
+      "/usr/lib64/ccache/g++",
+      "-Wall",
+      "-Wextra",
+      "-std=c++17",
+      "-c",
+      "-o",
+      "Scanner.o",
+      "src/Scanner.cpp"
+    ],
+    "directory": "/home/miko/Code/minipl-interpreter",
+    "file": "/home/miko/Code/minipl-interpreter/src/Scanner.cpp",
+    "output": "/home/miko/Code/minipl-interpreter/Scanner.o"
+  }
+]
