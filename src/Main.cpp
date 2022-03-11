@@ -2,6 +2,7 @@
 #include <string>
 
 #include "Scanner.h"
+#include "Parser.h"
 
 void print_usage() {
   std::cout << "Usage: interpreter <filename>" << std::endl;
@@ -14,9 +15,14 @@ int main(int argc, char** argv) {
   }
 
   Scanner scanner(argv[1]);
-  for (Token t : scanner.get_tokens()) {
+  auto tokens = scanner.get_tokens();
+
+  for (Token t : tokens) {
     t.print();
   }
+
+  Parser parser(tokens);
+  parser.parse();
 
   return 0;
 }

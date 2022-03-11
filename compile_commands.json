@@ -5,6 +5,7 @@
       "-Wall",
       "-Wextra",
       "-std=c++17",
+      "-g",
       "-c",
       "-o",
       "Main.o",
@@ -20,6 +21,7 @@
       "-Wall",
       "-Wextra",
       "-std=c++17",
+      "-g",
       "-c",
       "-fdiagnostics-color",
       "-o",
@@ -36,6 +38,7 @@
       "-Wall",
       "-Wextra",
       "-std=c++17",
+      "-g",
       "-c",
       "-o",
       "Scanner.o",
@@ -44,5 +47,55 @@
     "directory": "/home/miko/Code/minipl-interpreter",
     "file": "/home/miko/Code/minipl-interpreter/src/Scanner.cpp",
     "output": "/home/miko/Code/minipl-interpreter/Scanner.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/g++",
+      "-Wall",
+      "-Wextra",
+      "-std=c++17",
+      "-g",
+      "-c",
+      "-fdiagnostics-color",
+      "-o",
+      "Scanner.o",
+      "src/Scanner.cpp"
+    ],
+    "directory": "/home/miko/Code/minipl-interpreter",
+    "file": "/home/miko/Code/minipl-interpreter/src/Scanner.cpp",
+    "output": "/home/miko/Code/minipl-interpreter/Scanner.o"
+  },
+  {
+    "arguments": [
+      "/usr/lib64/ccache/g++",
+      "-Wall",
+      "-Wextra",
+      "-std=c++17",
+      "-g",
+      "-c",
+      "-o",
+      "Parser.o",
+      "src/Parser.cpp"
+    ],
+    "directory": "/home/miko/Code/minipl-interpreter",
+    "file": "/home/miko/Code/minipl-interpreter/src/Parser.cpp",
+    "output": "/home/miko/Code/minipl-interpreter/Parser.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/g++",
+      "-Wall",
+      "-Wextra",
+      "-std=c++17",
+      "-g",
+      "-c",
+      "-fdiagnostics-color",
+      "-o",
+      "Parser.o",
+      "src/Parser.cpp"
+    ],
+    "directory": "/home/miko/Code/minipl-interpreter",
+    "file": "/home/miko/Code/minipl-interpreter/src/Parser.cpp",
+    "output": "/home/miko/Code/minipl-interpreter/Parser.o"
   }
 ]

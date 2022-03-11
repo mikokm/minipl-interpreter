@@ -19,13 +19,15 @@ const char* token_type_to_string(TokenType type) {
       return "Operator";
     case TokenType::TypeDecl:
       return "TypeDecl";
+    case TokenType::EndOfFile:
+      return "EndOfFile";
     default:
       return "Unknown";
   }
 }
 
 void Token::print() {
-  std::cout << "(" << token_type_to_string(type_) << ",\"" << text_ << "\")";
+  std::cout << "(" << token_type_to_string(type()) << ",\"" << text() << "\")";
 }
 
 namespace Tokenizer {
@@ -143,5 +145,6 @@ std::vector<Token> Scanner::get_tokens() {
     }
   }
 
+  tokens.push_back(Token(TokenType::EndOfFile, std::string()));
   return tokens;
 }

@@ -12,18 +12,23 @@ enum class TokenType {
   Keyword,
   Operator,
   TypeDecl,
+  EndOfFile,
 };
 
 const char* token_type_to_string(TokenType type);
 
-struct Token {
-  TokenType type_;
-  std::string text_;
-
+class Token {
+public:
   Token(TokenType type, std::string text) : type_(type), text_(text) {}
   Token(TokenType type, char c) : type_(type) { text_ += c; }
 
   void print();
+  TokenType type() const { return type_; }
+  const std::string& text() const { return text_; }
+
+private:
+  TokenType type_;
+  std::string text_;
 };
 
 class Scanner {

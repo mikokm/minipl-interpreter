@@ -1,5 +1,5 @@
 CPPFLAGS=-Wall -Wextra -std=c++17 -g
-OBJS=Main.o Scanner.o
+OBJS=Main.o Scanner.o Parser.o
 
 all: interpreter
 
@@ -11,6 +11,9 @@ Main.o: src/Main.cpp
 
 Scanner.o: src/Scanner.cpp src/Scanner.h
 	$(CXX) $(CPPFLAGS) -c src/Scanner.cpp -o Scanner.o
+
+Parser.o: src/Parser.cpp src/Parser.h
+	$(CXX) $(CPPFLAGS) -c src/Parser.cpp -o Parser.o
 
 clean:
 	rm $(OBJS) interpreter
