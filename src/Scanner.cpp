@@ -19,6 +19,8 @@ const char* token_type_to_string(TokenType type) {
       return "Operator";
     case TokenType::EndOfFile:
       return "EndOfFile";
+    case TokenType::String:
+      return "String";
     default:
       return "Unknown";
   }
@@ -36,6 +38,7 @@ bool is_delimiter(char c) {
     case ';':
     case '(':
     case ')':
+    case '.':
       return true;
     default:
       return false;
@@ -96,56 +99,92 @@ Scanner::Scanner(const std::string& filename) {
   file_contents_ = read_file(filename);
 }
 
-std::vector<Token> Scanner::get_tokens() {
-  std::vector<Token> tokens;
-
-  enum class BufferState { Integer, String, None };
-
-  BufferState state = BufferState::None;
-  std::string buf;
-
-  for (char c : file_contents_) {
-    if (Tokenizer::is_whitespace(c) && buf.empty()) {
-      continue;
+struct TokenBuffer {
+  void push(char c) {
+    switch (state_) {
+      case State::Escape:
+        buffer_ += c;
+        state_ = State::StringLiteral;
+        break;
+      case State::StringLiteral:
+        if (c == '"') {
+          AddToken(Token(TokenType::String, take_buffer()));
+          state_ = State::None;
+          return;
+        } else if (c == '\\') {
+          state_ = State::Escape;
+          buffer_ += c;
+        } else {
+          buffer_ += c;
+        }
+        break;
+      case State::Integer:
+        if (Tokenizer::is_digit(c)) {
+          buffer_ += c;
+        } else {
+          AddToken(Token(TokenType::Integer, take_buffer()));
+          state_ = State::None;
+        }
+        break;
+      case State::Identifier:
+        if (Tokenizer::is_letter(c) || Tokenizer::is_digit(c)) {
+          buffer_ += c;
+        } else {
+          const bool is_keyword = Tokenizer::is_keyword(buffer_);
+          AddToken(
+              Token(is_keyword ? TokenType::Keyword : TokenType::Identifier,
+                    take_buffer()));
+          state_ = State::None;
+        }
+        break;
+      default:
+        break;
     }
 
-    if (Tokenizer::is_digit(c)) {
-      assert(state == BufferState::None || state == BufferState::Integer);
-
-      state = BufferState::Integer;
-      buf += c;
-    } else if (state == BufferState::Integer) {
-      tokens.push_back(Token(TokenType::Integer, buf));
-      buf.clear();
-      state = BufferState::None;
-    }
-
-    if (Tokenizer::is_letter(c)) {
-      assert(state == BufferState::None || state == BufferState::String);
-
-      state = BufferState::String;
-      buf += c;
-    } else if (state == BufferState::String) {
-      const bool is_keyword = Tokenizer::is_keyword(buf);
-      tokens.push_back(
-          Token(is_keyword ? TokenType::Keyword : TokenType::Identifier, buf));
-      buf.clear();
-      state = BufferState::None;
-    }
-
-    if (Tokenizer::is_delimiter(c)) {
-      assert(buf.empty());
-      tokens.push_back(Token(TokenType::Delimiter, c));
-      continue;
-    }
-
-    if (Tokenizer::is_operator(c)) {
-      assert(buf.empty());
-      tokens.push_back(Token(TokenType::Operator, c));
-      continue;
+    if (state_ == State::None) {
+      if (Tokenizer::is_delimiter(c)) {
+        AddToken(Token(TokenType::Delimiter, c));
+      } else if (Tokenizer::is_operator(c)) {
+        AddToken(Token(TokenType::Operator, c));
+      } else if (Tokenizer::is_digit(c)) {
+        buffer_ += c;
+        state_ = State::Integer;
+      } else if (Tokenizer::is_letter(c)) {
+        buffer_ += c;
+        state_ = State::Identifier;
+      } else if (c == '"') {
+        state_ = State::StringLiteral;
+      }
     }
   }
 
-  tokens.push_back(Token(TokenType::EndOfFile, std::string()));
-  return tokens;
+  std::string take_buffer() {
+    std::string buffer = buffer_;
+    buffer_.clear();
+    return buffer;
+  }
+
+  void AddToken(Token token) {
+    std::cout << "Found token: ";
+    token.print();
+    std::cout << std::endl;
+    tokens_.push_back(token);
+  }
+
+  enum class State { Escape, Integer, Identifier, StringLiteral, None };
+
+  State state_ = State::None;
+  std::string buffer_;
+  std::vector<Token> tokens_;
+};
+
+std::vector<Token> Scanner::get_tokens() {
+  TokenBuffer buffer;
+
+  for (char c : file_contents_) {
+    buffer.push(c);
+  }
+
+  buffer.AddToken(Token(TokenType::EndOfFile, std::string()));
+  return buffer.tokens_;
 }

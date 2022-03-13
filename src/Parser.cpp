@@ -22,6 +22,7 @@ void Parser::expr() {
     opnd();
   } else {
     opnd();
+    opnd_tail();
   }
 }
 
@@ -40,7 +41,6 @@ void Parser::opnd() {
     case TokenType::String:
     case TokenType::Identifier:
       next_token();
-      opnd_tail();
       break;
     default:
       parse_error();
@@ -72,6 +72,21 @@ void Parser::stmt() {
         break;
       }
 
+      if (match("for")) {
+        next_token();
+        expect_type(TokenType::Identifier);
+        expect_match("in");
+        expr();
+        expect_match(".");
+        expect_match(".");
+        expr();
+        expect_match("do");
+        stmts();
+        expect_match("end");
+        expect_match("for");
+        break;
+      }
+
       if (match("read")) {
         next_token();
         expect_type(TokenType::Identifier);
@@ -85,6 +100,7 @@ void Parser::stmt() {
       }
 
       if (match("assert")) {
+        next_token();
         expect_match("(");
         expr();
         expect_match(")");
@@ -93,19 +109,21 @@ void Parser::stmt() {
     default:
       parse_error();
   }
-
-  expect_match(";");
 }
 
 void Parser::stmts() {
-  while (!match_type(TokenType::EndOfFile)) {
+  while (!match_type(TokenType::EndOfFile) && !match("end")) {
+    // Next symbol starts stmt
     stmt();
+    expect_match(";");
   }
 }
 
 void Parser::parse() {
   assert(has_next());
-  stmts();
+  while (!match_type(TokenType::EndOfFile)) {
+    stmts();
+  }
   assert(current_type() == TokenType::EndOfFile);
 }
 
