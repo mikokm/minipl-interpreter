@@ -17,8 +17,6 @@ const char* token_type_to_string(TokenType type) {
       return "Keyword";
     case TokenType::Operator:
       return "Operator";
-    case TokenType::TypeDecl:
-      return "TypeDecl";
     case TokenType::EndOfFile:
       return "EndOfFile";
     default:
@@ -46,11 +44,14 @@ bool is_delimiter(char c) {
 
 bool is_operator(char c) {
   switch (c) {
-    case '=':
     case '+':
     case '-':
     case '*':
     case '/':
+    case '<':
+    case '=':
+    case '&':
+    case '!':
       return true;
     default:
       return false;
@@ -140,7 +141,7 @@ std::vector<Token> Scanner::get_tokens() {
 
     if (Tokenizer::is_operator(c)) {
       assert(buf.empty());
-      tokens.push_back(Token(TokenType::Delimiter, c));
+      tokens.push_back(Token(TokenType::Operator, c));
       continue;
     }
   }
