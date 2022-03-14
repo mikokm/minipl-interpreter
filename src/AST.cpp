@@ -121,7 +121,7 @@ void ListNode::evaluate(Context& ctx) {
 }
 
 void VarNode::evaluate(Context& ctx) {
-  LOG("VarNode (%s, %s)\n", id_.c_str(), symbol_type_to_string(type_));
+  LOG("VarNode (%s, %s)\n", id_.c_str(), symbol_type_to_string(type_).c_str());
 
   if (type_ == SymbolType::Unknown) {
     // Pre-existing symbol, get the type from the symbol table.
