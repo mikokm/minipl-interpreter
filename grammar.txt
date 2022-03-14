@@ -6,10 +6,6 @@
 	| “read” <var_ident>
 	| “print” <expr>
 	| “assert” “(” <expr> “)”
-//
-<expr> ::= <opnd> <op> <opnd>
-	| [ <unary_opnd> ] <opnd>
-//
 <expr> ::= <opnd> <opnd_tail> | <unary_opnd> <opnd>
 <opnd_tail> ::= <op> <opnd> | epsilon
 <opnd>::= <int> | <string> | <var_ident> | “(” <expr> “)”
