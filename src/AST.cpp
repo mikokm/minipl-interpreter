@@ -1,9 +1,10 @@
 #include "AST.h"
-#include "Utils.h"
 
 #include <cassert>
 #include <iostream>
 #include <sstream>
+
+#include "Utils.h"
 
 SymbolType symbol_type_from_string(const std::string& str) {
   if (str == "int") {
@@ -31,7 +32,6 @@ std::string symbol_type_to_string(SymbolType type) {
 
   return "Unknown";
 }
-
 
 Symbol::Symbol(int data) : type_(SymbolType::Integer) {
   std::stringstream ss;
@@ -64,12 +64,12 @@ bool Symbol::to_bool() const {
   return data_ == "true";
 }
 
-Symbol Symbol::operator+(const Symbol& aOther) {
+Symbol Symbol::operator+(const Symbol& rhs) {
   switch (type_) {
     case SymbolType::Integer:
-      return Symbol(to_int() + aOther.to_int());
+      return Symbol(to_int() + rhs.to_int());
     case SymbolType::String:
-      return Symbol(to_string() + aOther.to_string());
+      return Symbol(to_string() + rhs.to_string());
     default:
       break;
   }
@@ -78,24 +78,38 @@ Symbol Symbol::operator+(const Symbol& aOther) {
   return Symbol{};
 }
 
-Symbol Symbol::operator-(const Symbol& aOther) {
+Symbol Symbol::operator-(const Symbol& rhs) {
   assert(type_ == SymbolType::Integer);
-  return Symbol(to_int() - aOther.to_int());
+  return Symbol(to_int() - rhs.to_int());
 }
 
-Symbol Symbol::operator*(const Symbol& aOther) {
+Symbol Symbol::operator*(const Symbol& rhs) {
   assert(type_ == SymbolType::Integer);
-  return Symbol(to_int() * aOther.to_int());
+  return Symbol(to_int() * rhs.to_int());
+}
+
+Symbol Symbol::operator/(const Symbol& rhs) {
+  assert(type_ == SymbolType::Integer);
+  return Symbol(to_int() / rhs.to_int());
+}
+
+Symbol Symbol::operator&(const Symbol& rhs) {
+  assert(type_ == SymbolType::Boolean);
+  return Symbol(to_bool() & rhs.to_bool());
+}
+
+Symbol Symbol::operator==(const Symbol& rhs) {
+  return Symbol(data_ == rhs.data_);
+}
+
+Symbol Symbol::operator<(const Symbol& rhs) {
+  assert(type_ == SymbolType::Integer);
+  return Symbol(to_int() < rhs.to_int());
 }
 
 Symbol Symbol::operator!() {
   assert(type_ == SymbolType::Boolean);
   return data_ == "true" ? Symbol(false) : Symbol(true);
-}
-
-Symbol Symbol::operator/(const Symbol& aOther) {
-  assert(type_ == SymbolType::Integer);
-  return Symbol(to_int() / aOther.to_int());
 }
 
 void ListNode::evaluate(Context& ctx) {
@@ -122,9 +136,14 @@ void VarNode::evaluate(Context& ctx) {
     // default init
     std::string value;
     switch (type_) {
-      case SymbolType::Boolean: value = "false"; break;
-      case SymbolType::Integer: value = "0"; break;
-      default: break;
+      case SymbolType::Boolean:
+        value = "false";
+        break;
+      case SymbolType::Integer:
+        value = "0";
+        break;
+      default:
+        break;
     }
 
     ctx.symbols_[id_] = Symbol(type_, value);
@@ -152,11 +171,15 @@ void AssertNode::evaluate(Context& ctx) {
   LOG("AssertNode\n");
   if (expr_) {
     expr_->evaluate(ctx);
+    if (!expr_->result_.to_bool()) {
+      std::cout << "Assertion failed!" << std::endl;
+    }
   }
 }
 
 void ExprNode::evaluate(Context& ctx) {
-  LOG("ExprNode (%s) (is_id: %d, negate: %d)\n", value_.c_str(), is_identifier_, negate_);
+  LOG("ExprNode (%s) (is_id: %d, negate: %d)\n", value_.c_str(), is_identifier_,
+      negate_);
 
   Symbol lhs = is_identifier_ ? ctx.symbols_[value_] : Symbol(type_, value_);
   if (negate_) {
@@ -178,6 +201,12 @@ void ExprNode::evaluate(Context& ctx) {
       result_ = lhs - rhs;
     } else if (op == "/") {
       result_ = lhs / rhs;
+    } else if (op == "=") {
+      result_ = lhs == rhs;
+    } else if (op == "&") {
+      result_ = lhs & rhs;
+    } else if (op == "<") {
+      result_ = lhs < rhs;
     }
   } else {
     result_ = lhs;
@@ -202,7 +231,7 @@ void ForNode::evaluate(Context& ctx) {
   assert(start.type_ == SymbolType::Integer);
   assert(end.type_ == SymbolType::Integer);
 
-  for (int i = start.to_int(); i < end.to_int(); ++i) {
+  for (int i = start.to_int(); i <= end.to_int(); ++i) {
     ctx.symbols_[id_] = Symbol(i);
     stmts_->evaluate(ctx);
   }

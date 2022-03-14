@@ -181,6 +181,4 @@ void Parser::parse() {
   node->evaluate(ctx);
 }
 
-void Parser::parse_error() {
-  LOG_ERROR("Parsing error encountered\n");
-}
+void Parser::parse_error() { LOG_ERROR("Parsing error encountered\n"); }

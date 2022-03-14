@@ -57,8 +57,7 @@ class Parser {
   bool has_next() const { return current_ != end_; }
 
   void next_token() {
-		LOG("Current token: %s\n",
-				current_token().to_string().c_str());
+    LOG("Current token: %s\n", current_token().to_string().c_str());
 
     assert(has_next());
     ++current_;

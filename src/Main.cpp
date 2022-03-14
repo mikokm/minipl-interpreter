@@ -4,14 +4,20 @@
 #include "Parser.h"
 #include "Scanner.h"
 
+bool gLog = false;
+
 void print_usage() {
-  std::cout << "Usage: interpreter <filename>" << std::endl;
+  std::cout << "Usage: interpreter <filename> [-d]" << std::endl;
 }
 
 int main(int argc, char** argv) {
   if (argc < 2) {
     print_usage();
     return 1;
+  }
+
+  if (argc > 2) {
+    gLog = true;
   }
 
   LOG("Interpreting file %s\n", argv[1]);

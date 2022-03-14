@@ -23,10 +23,13 @@ struct Symbol {
   std::string to_string() const;
   bool to_bool() const;
 
-  Symbol operator+(const Symbol& aOther);
-  Symbol operator-(const Symbol& aOther);
-  Symbol operator*(const Symbol& aOther);
-  Symbol operator/(const Symbol& aOther);
+  Symbol operator+(const Symbol& rhs);
+  Symbol operator-(const Symbol& rhs);
+  Symbol operator*(const Symbol& rhs);
+  Symbol operator/(const Symbol& rhs);
+  Symbol operator&(const Symbol& rhs);
+  Symbol operator==(const Symbol& rhs);
+  Symbol operator<(const Symbol& rhs);
   Symbol operator!();
 
   Symbol() : type_(SymbolType::Unknown) {}
@@ -74,7 +77,6 @@ struct AssertNode : public Node {
   ExprNode* expr_ = nullptr;
 };
 
-
 struct OpNode : public Node {
   void evaluate(Context& ctx) override;
   std::string op_;
@@ -93,7 +95,7 @@ struct ExprNode : public Node {
   Symbol result_;
 };
 
-struct ForNode: public Node {
+struct ForNode : public Node {
   void evaluate(Context& ctx) override;
   std::string id_;
   ExprNode* start_ = nullptr;

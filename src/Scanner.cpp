@@ -3,8 +3,8 @@
 #include <cassert>
 #include <fstream>
 #include <iostream>
-#include <sstream>
 #include <set>
+#include <sstream>
 
 #include "Utils.h"
 
@@ -30,9 +30,9 @@ const char* token_type_to_string(TokenType type) {
 }
 
 std::string Token::to_string() const {
-	std::stringstream ss;
-	ss << "(" << token_type_to_string(type()) << ",\"" << text() << "\")";
-	return ss.str();
+  std::stringstream ss;
+  ss << "(" << token_type_to_string(type()) << ",\"" << text() << "\")";
+  return ss.str();
 }
 
 namespace Tokenizer {
@@ -183,7 +183,7 @@ struct TokenBuffer {
   }
 
   void AddToken(Token token) {
-		LOG("Found token %s\n", token.to_string().c_str());
+    LOG("Found token %s\n", token.to_string().c_str());
     tokens_.push_back(token);
   }
 
