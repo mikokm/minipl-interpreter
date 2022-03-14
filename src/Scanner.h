@@ -22,11 +22,12 @@ class Token {
   Token(TokenType type, std::string text) : type_(type), text_(text) {}
   Token(TokenType type, char c) : type_(type) { text_ += c; }
 
-  void print();
+  std::string to_string() const;
   TokenType type() const { return type_; }
   const std::string& text() const { return text_; }
 
   bool match(const std::string& text) const { return text_ == text; }
+  bool match_type(TokenType type) const { return type_ == type; }
 
  private:
   TokenType type_;

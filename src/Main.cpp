@@ -17,16 +17,8 @@ int main(int argc, char** argv) {
   Scanner scanner(argv[1]);
   auto tokens = scanner.get_tokens();
 
-  std::cout << "-- Scanner output --" << std::endl;
-  for (Token t : tokens) {
-    t.print();
-  }
-  std::cout << std::endl << "--" << std::endl;
-
-  std::cout << std::endl << "Parsing:" << std::endl;
   Parser parser(tokens);
   parser.parse();
-  std::cout << std::endl << "--" << std::endl;
 
   return 0;
 }

@@ -1,133 +1,182 @@
 #include "Parser.h"
 
-void Parser::assign() {
+ExprNode* Parser::assign() {
   expect_match(":");
   expect_match("=");
-  expr();
+  return expr();
 }
 
-void Parser::var_type() {
-  if (match_type(TokenType::Keyword)) {
-    bool is_var_type = match("int") || match("string") || match("bool");
-    assert(is_var_type);
-    next_token();
-  } else {
-    parse_error();
-  }
-}
-
-void Parser::expr() {
+ExprNode* Parser::expr() {
   if (match("!")) {
     next_token();
-    opnd();
+    ExprNode* node = opnd();
+    node->negate_ = true;
+    return node;
   } else {
-    opnd();
-    opnd_tail();
+    ExprNode* node = opnd();
+    node->tail_ = opnd_tail();
+    return node;
   }
 }
 
-void Parser::opnd() {
+ExprNode* Parser::opnd() {
   switch (current_type()) {
     case TokenType::Delimiter:
       if (match("(")) {
         next_token();
-        expr();
+        auto* node = expr();
         expect_match(")");
+        return node;
       } else {
         parse_error();
       }
       break;
-    case TokenType::Integer:
-    case TokenType::String:
-    case TokenType::Identifier:
+    case TokenType::Integer: {
+      auto* node = new ExprNode();
+      node->value_ = current_text();
+      node->type_ = SymbolType::Integer;
       next_token();
-      break;
+      return node;
+    }
+    case TokenType::String: {
+      auto* node = new ExprNode();
+      node->value_ = current_text();
+      node->type_ = SymbolType::String;
+      next_token();
+      return node;
+    }
+    case TokenType::Identifier: {
+      auto* node = new ExprNode();
+      node->value_ = current_text();
+      node->type_ = SymbolType::Unknown;
+      node->is_identifier_ = true;
+      next_token();
+      return node;
+    }
     default:
       parse_error();
   }
+
+  parse_error();
+  return nullptr;
 }
 
-void Parser::opnd_tail() {
+OpNode* Parser::opnd_tail() {
   if (match_type(TokenType::Operator)) {
+    auto* node = new OpNode();
+    node->op_ = current_text();
     next_token();
-    opnd();
+    node->expr_ = opnd();
+    return node;
   }
+
+  return nullptr;
 }
 
-void Parser::stmt() {
-  switch (current_type()) {
-    case TokenType::Identifier:
+Node* Parser::stmt() {
+  if (current_type() == TokenType::Identifier) {
+    VarNode* node = new VarNode();
+    node->id_ = current_text();
+    next_token();
+    node->expr_ = assign();
+    return node;
+  }
+
+  if (current_type() == TokenType::Keyword) {
+    if (match("var")) {
       next_token();
-      assign();
-      break;
-    case TokenType::Keyword:
-      if (match("var")) {
+
+      VarNode* node = new VarNode();
+      node->id_ = current_text();
+      expect_type(TokenType::Identifier);
+      expect_match(":");
+
+      if (match("int") || match("string") || match("bool")) {
+        node->type_ = current_text();
         next_token();
-        expect_type(TokenType::Identifier);
-        expect_match(":");
-        var_type();
-        if (match(":")) {
-          assign();
-        }
-        break;
+      } else {
+        parse_error();
       }
 
-      if (match("for")) {
-        next_token();
-        expect_type(TokenType::Identifier);
-        expect_match("in");
-        expr();
-        expect_match(".");
-        expect_match(".");
-        expr();
-        expect_match("do");
-        stmts();
-        expect_match("end");
-        expect_match("for");
-        break;
+      if (match(":")) {
+        node->expr_ = assign();
       }
 
-      if (match("read")) {
-        next_token();
-        expect_type(TokenType::Identifier);
-        break;
-      }
+      return node;
+    }
 
-      if (match("print")) {
-        next_token();
-        expr();
-        break;
-      }
+    if (match("for")) {
+      next_token();
+      expect_type(TokenType::Identifier);
+      expect_match("in");
+      expr();
+      expect_match(".");
+      expect_match(".");
+      expr();
+      expect_match("do");
+      stmts();
+      expect_match("end");
+      expect_match("for");
+      return nullptr;
+    }
 
-      if (match("assert")) {
-        next_token();
-        expect_match("(");
-        expr();
-        expect_match(")");
-      }
-      break;
-    default:
-      parse_error();
+    if (match("read")) {
+      next_token();
+
+      ReadNode* node = new ReadNode();
+      node->id_ = current_text();
+      expect_type(TokenType::Identifier);
+
+      return node;
+    }
+
+    if (match("print")) {
+      next_token();
+
+      PrintNode* node = new PrintNode();
+      node->expr_ = expr();
+
+      return node;
+    }
+
+    if (match("assert")) {
+      next_token();
+
+      AssertNode* node = new AssertNode();
+      expect_match("(");
+      node->expr_ = expr();
+      expect_match(")");
+
+      return node;
+    }
   }
+
+  parse_error();
+  return nullptr;
 }
 
-void Parser::stmts() {
+Node* Parser::stmts() {
+  ListNode* listNode = new ListNode();
+
   while (!match_type(TokenType::EndOfFile) && !match("end")) {
     // Next symbol starts stmt
-    stmt();
+    Node* node = stmt();
+    listNode->children_.push_back(node);
     expect_match(";");
   }
+
+  return listNode;
 }
 
 void Parser::parse() {
   assert(has_next());
-  while (!match_type(TokenType::EndOfFile)) {
-    stmts();
-  }
+  Node* node = stmts();
   assert(current_type() == TokenType::EndOfFile);
+
+  Context ctx;
+  node->evaluate(ctx);
 }
 
 void Parser::parse_error() {
-  std::cout << "Error encountered" << std::endl;
-  abort();
+  LOG_ERROR("Parsing error encountered\n");
 }

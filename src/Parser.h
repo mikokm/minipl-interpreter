@@ -2,8 +2,11 @@
 #define PARSER_H
 
 #include <cassert>
+#include <map>
 
+#include "AST.h"
 #include "Scanner.h"
+#include "Utils.h"
 
 class Parser {
  public:
@@ -15,13 +18,12 @@ class Parser {
   void parse();
 
  protected:
-  void assign();
-  void expr();
-  void opnd();
-  void opnd_tail();
-  void stmt();
-  void stmts();
-  void var_type();
+  ExprNode* assign();
+  ExprNode* expr();
+  ExprNode* opnd();
+  OpNode* opnd_tail();
+  Node* stmt();
+  Node* stmts();
 
   void parse_error();
 
@@ -35,7 +37,7 @@ class Parser {
   }
 
   bool match_type(const TokenType type) {
-    return current_token().type() == type;
+    return current_token().match_type(type);
   }
 
   void expect_type(const TokenType type) {
@@ -44,9 +46,10 @@ class Parser {
   }
 
   TokenType current_type() const { return current_token().type(); }
+  const std::string& current_text() const { return current_token().text(); }
 
  private:
-  Token current_token() const {
+  const Token& current_token() const {
     assert(has_next());
     return *current_;
   };
@@ -54,9 +57,8 @@ class Parser {
   bool has_next() const { return current_ != end_; }
 
   void next_token() {
-    std::cout << "Current token: ";
-    current_token().print();
-    std::cout << std::endl;
+		LOG("Current token: %s\n",
+				current_token().to_string().c_str());
 
     assert(has_next());
     ++current_;

@@ -3,7 +3,10 @@
 #include <cassert>
 #include <fstream>
 #include <iostream>
+#include <sstream>
 #include <set>
+
+#include "Utils.h"
 
 const char* token_type_to_string(TokenType type) {
   switch (type) {
@@ -26,8 +29,10 @@ const char* token_type_to_string(TokenType type) {
   }
 }
 
-void Token::print() {
-  std::cout << "(" << token_type_to_string(type()) << ",\"" << text() << "\")";
+std::string Token::to_string() const {
+	std::stringstream ss;
+	ss << "(" << token_type_to_string(type()) << ",\"" << text() << "\")";
+	return ss.str();
 }
 
 namespace Tokenizer {
@@ -103,7 +108,20 @@ struct TokenBuffer {
   void push(char c) {
     switch (state_) {
       case State::Escape:
-        buffer_ += c;
+        switch (c) {
+          case 'n':
+            buffer_ += '\n';
+            break;
+          case 't':
+            buffer_ += '\t';
+            break;
+          case '"':
+            buffer_ += '"';
+            break;
+          default:
+            LOG_ERROR("Unexpected escape sequence \\%c\n", c);
+            break;
+        }
         state_ = State::StringLiteral;
         break;
       case State::StringLiteral:
@@ -113,7 +131,7 @@ struct TokenBuffer {
           return;
         } else if (c == '\\') {
           state_ = State::Escape;
-          buffer_ += c;
+          return;
         } else {
           buffer_ += c;
         }
@@ -165,9 +183,7 @@ struct TokenBuffer {
   }
 
   void AddToken(Token token) {
-    std::cout << "Found token: ";
-    token.print();
-    std::cout << std::endl;
+		LOG("Found token %s\n", token.to_string().c_str());
     tokens_.push_back(token);
   }
 
