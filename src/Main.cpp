@@ -14,9 +14,13 @@ int main(int argc, char** argv) {
     return 1;
   }
 
+  LOG("Interpreting file %s\n", argv[1]);
   Scanner scanner(argv[1]);
+
+  LOG("- Start scanning\n");
   auto tokens = scanner.get_tokens();
 
+  LOG("- Start parsing\n");
   Parser parser(tokens);
   parser.parse();
 

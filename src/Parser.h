@@ -23,7 +23,7 @@ class Parser {
   ExprNode* opnd();
   OpNode* opnd_tail();
   Node* stmt();
-  Node* stmts();
+  ListNode* stmts();
 
   void parse_error();
 

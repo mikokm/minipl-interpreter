@@ -145,7 +145,7 @@ struct TokenBuffer {
         }
         break;
       case State::Identifier:
-        if (Tokenizer::is_letter(c) || Tokenizer::is_digit(c)) {
+        if (Tokenizer::is_letter(c) || Tokenizer::is_digit(c) || c == '_') {
           buffer_ += c;
         } else {
           const bool is_keyword = Tokenizer::is_keyword(buffer_);

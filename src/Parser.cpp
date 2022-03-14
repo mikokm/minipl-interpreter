@@ -77,6 +77,7 @@ Node* Parser::stmt() {
   if (current_type() == TokenType::Identifier) {
     VarNode* node = new VarNode();
     node->id_ = current_text();
+    node->type_ = SymbolType::Unknown;
     next_token();
     node->expr_ = assign();
     return node;
@@ -92,7 +93,7 @@ Node* Parser::stmt() {
       expect_match(":");
 
       if (match("int") || match("string") || match("bool")) {
-        node->type_ = current_text();
+        node->type_ = symbol_type_from_string(current_text());
         next_token();
       } else {
         parse_error();
@@ -107,17 +108,20 @@ Node* Parser::stmt() {
 
     if (match("for")) {
       next_token();
+
+      ForNode* node = new ForNode();
+      node->id_ = current_text();
       expect_type(TokenType::Identifier);
       expect_match("in");
-      expr();
+      node->start_ = expr();
       expect_match(".");
       expect_match(".");
-      expr();
+      node->end_ = expr();
       expect_match("do");
-      stmts();
+      node->stmts_ = stmts();
       expect_match("end");
       expect_match("for");
-      return nullptr;
+      return node;
     }
 
     if (match("read")) {
@@ -155,7 +159,7 @@ Node* Parser::stmt() {
   return nullptr;
 }
 
-Node* Parser::stmts() {
+ListNode* Parser::stmts() {
   ListNode* listNode = new ListNode();
 
   while (!match_type(TokenType::EndOfFile) && !match("end")) {

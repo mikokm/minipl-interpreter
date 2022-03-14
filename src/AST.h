@@ -12,6 +12,9 @@ enum class SymbolType {
   Unknown,
 };
 
+SymbolType symbol_type_from_string(const std::string& str);
+std::string symbol_type_to_string(SymbolType type);
+
 struct Symbol {
   SymbolType type_;
   std::string data_;
@@ -23,6 +26,8 @@ struct Symbol {
   Symbol operator+(const Symbol& aOther);
   Symbol operator-(const Symbol& aOther);
   Symbol operator*(const Symbol& aOther);
+  Symbol operator/(const Symbol& aOther);
+  Symbol operator!();
 
   Symbol() : type_(SymbolType::Unknown) {}
   Symbol(SymbolType type, const std::string& data) : type_(type), data_(data) {}
@@ -50,7 +55,7 @@ struct ExprNode;
 struct VarNode : public Node {
   void evaluate(Context& ctx) override;
   std::string id_;
-  std::string type_;
+  SymbolType type_;
   ExprNode* expr_ = nullptr;
 };
 
@@ -69,7 +74,12 @@ struct AssertNode : public Node {
   ExprNode* expr_ = nullptr;
 };
 
-class OpNode;
+
+struct OpNode : public Node {
+  void evaluate(Context& ctx) override;
+  std::string op_;
+  ExprNode* expr_ = nullptr;
+};
 
 struct ExprNode : public Node {
   void evaluate(Context& ctx) override;
@@ -83,10 +93,12 @@ struct ExprNode : public Node {
   Symbol result_;
 };
 
-struct OpNode : public Node {
+struct ForNode: public Node {
   void evaluate(Context& ctx) override;
-  std::string op_;
-  ExprNode* expr_ = nullptr;
+  std::string id_;
+  ExprNode* start_ = nullptr;
+  ExprNode* end_ = nullptr;
+  ListNode* stmts_ = nullptr;
 };
 
 #endif  // AST_H
